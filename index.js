@@ -6,7 +6,15 @@ import { neon } from "@neondatabase/serverless";
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "https://freelance-interview.vercel.app/",
+      "http://localhost:3000",
+    ],
+    methods: ["GET", "POST"],
+  })
+);
 app.use(express.json());
 
 const sql = neon(process.env.DATABASE_URL);
@@ -21,6 +29,29 @@ app.get("/", async (req, res) => {
 app.get("/api/modules", async (req, res) => {
   const result = await sql`SELECT * FROM modules`;
   res.json(result);
+});
+
+app.post("/api/contact", async (req, res) => {
+  const { name, email, message } = req.body;
+
+  if (!name || !email || !message) {
+    return res.json(
+      { error: "Name, email, and message are required" },
+      { status: 400 }
+    );
+  }
+
+  try {
+    await sql`
+    INSERT INTO customers (name, email, message)
+    VALUES (${name}, ${email}, ${message})
+  `;
+
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false });
+  }
 });
 
 // Here i am getting module first and making 7 sql queries which is slow (3ms)
