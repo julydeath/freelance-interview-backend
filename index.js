@@ -8,10 +8,7 @@ dotenv.config();
 const app = express();
 app.use(
   cors({
-    origin: [
-      "https://freelance-interview.vercel.app/",
-      "http://localhost:3000",
-    ],
+    origin: ["https://freelance-interview.vercel.app", "http://localhost:3000"],
     methods: ["GET", "POST"],
   })
 );
@@ -118,6 +115,8 @@ app.get("/api/modules/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
 
+    console.log(slug);
+
     const result = await sql`
       SELECT 
         m.*, 
@@ -156,6 +155,8 @@ app.get("/api/modules/:slug", async (req, res) => {
     if (result.length === 0) {
       return res.status(404).json({ error: "Module not found" });
     }
+
+    console.log(result[0]);
 
     res.json(result[0]);
   } catch (error) {
